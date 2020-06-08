@@ -21,9 +21,6 @@ class meta():
         self.Summe_NGF = excel_read("Summe_NGF")
 
 
+
 def (WWt, Qt,StrombedarfausBatterie ):
     meta.Summe_NGF
-    ascojanscljanbsc
-    for
-
-    return ()
