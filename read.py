@@ -1,7 +1,7 @@
 
 import openpyxl
 
-wb = openpyxl.load_workbook("data/PlusenergieExcel_Lisa.xlsm", read_only=True)
+wb = openpyxl.load_workbook("data/test.xlsx", read_only=True)
 rng = wb.defined_names["META_input"]
 dests = rng.destinations
 
