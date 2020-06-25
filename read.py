@@ -22,5 +22,5 @@ class meta():
 
 
 
-def (WWt, Qt,StrombedarfausBatterie ):
+def something(WWt, Qt,StrombedarfausBatterie ):
     meta.Summe_NGF
