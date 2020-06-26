@@ -1,2 +1,4 @@
 # Project exclude paths
 /venv/
+/docs/~$Zellennamen.xlsx
+/data/~$visual.xlsx

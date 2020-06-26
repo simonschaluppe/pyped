@@ -16,6 +16,9 @@
 #
 # print(META)
 
+import xlwings as xw
+import pdb
+
 class Meta():
 
     def __init__(self, meta_names):
@@ -29,12 +32,15 @@ def from_xlsx(path):
     :param path:
     :return: dict {name: {range, value}}:
     """
+
+    # TODO: sollte ein Meta() obejct bauen, das den namen in excel speichert, und aber auch den value EINE ZEILE weiter unten
     wb = xw.Book(path)
     meta = {}
     for name in wb.names:
         meta[name.name] = {"range": name.refers_to_range, "value": name.refers_to_range.value}
     # %%
     wb.close()
+    print(meta)
     print("META loaded from {path}")
     return meta
     #
