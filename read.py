@@ -16,11 +16,34 @@ for col in range(len(cells[0])):
 
 print(META)
 
-class meta():
-    def __init__(self):
-        self.Summe_NGF = excel_read("Summe_NGF")
+class Meta():
 
+    def __init__(self, meta_names):
+        self.names = meta_names
 
+import xlwings as xw
 
-def something(WWt, Qt,StrombedarfausBatterie ):
-    meta.Summe_NGF
+def from_xlsx(path):
+    """
+    reads excel from path and returns dict of named ranges
+    :param path:
+    :return: dict {name: {range, value}}:
+    """
+    wb = xw.Book(path)
+    meta = {}
+    for name in wb.names:
+        meta[name.name] = {"range": name.refers_to_range, "value": name.refers_to_range.value}
+    # %%
+    wb.close()
+    print("META loaded from {path}")
+    return meta
+    #
+
+print(__name__)
+
+if __name__ == "__main__":
+    meta = from_xlsx("data/META.xlsx")
+
+    meta_cls = Meta(meta)
+    meta["meta_building_floor_area"]["value"]
+    pdb.set_trace()
