@@ -3,14 +3,20 @@ from random import random, randint
 
 class Battery:
     capacity    = 100
-    charge      = round(random(), 4)
+    charge_state= round(random(), 4)
     maxcharge   = randint(5,12)
     relcharge   = maxcharge / capacity
-    def apply_charge(self):
-        self.charge = min(1, self.charge + self.relcharge)
+    def charge(self):
+        self.charge_state = min(1, self.charge_state + self.relcharge)
+        return True
+    def discharge(self, rate):
+        if rate > self.charge_state:
+            raise ValueError(f"discharge rate {rate} > charge_state {__name__.charge_state}.")
+        else:
+            self.charge_state = max(0, self.charge_state - rate)
 
 class Ecar:
-    states = ["plugged", "trip"]
+    states = ["plugged", "moving "]
     target = randint(50,100)/100
 
     def __init__(self, id):
@@ -18,21 +24,37 @@ class Ecar:
         self.state = self.states[0]
         self.battery = Battery()
 
+    def update(self):
+        self.set_state()
+        self.handle_state()
 
-    def handle_state(self,hour):
+    def set_state(self):
+        # TODO: Markov Chain Lookup
         if self.state == self.states[0]:
-            self.apply_charge()
+            if random() < 0.2:
+                self.state = self.states[1]
+        else:
+            if random() < 0.5:
+                self.state = self.states[0]
 
+    def handle_state(self):
+        if self.state == self.states[0]:
+            self.charge()
         elif self.state == self.states[1]:
-            pass
+            self.move()
 
-    def apply_charge(self):
-        if self.battery.charge < self.target:
-            self.battery.apply_charge()
+    def move(self):
+        req_energy = randint(10, 20)/100
+        if self.battery.charge_state > req_energy:
+            self.battery.discharge(req_energy)
+
+    def charge(self):
+        if self.battery.charge_state < self.target:
+            self.battery.charge()
 
     def charge_bar(self):
-        length = 30
-        bar = "["+"#"*round(self.battery.charge*length)+" "*round(length-self.battery.charge*length)+"]"
+        length = 20
+        bar = "[" +"#" * round(self.battery.charge_state * length) + " " * round(length - self.battery.charge_state * length) + "]"
         start = bar[:round(self.target*length)]
         end = bar[round(self.target*length)+1:]
         # print(start, end)
@@ -41,12 +63,12 @@ class Ecar:
     def __repr__(self):
         charge_bar = self.charge_bar()
         # charge_bar[round(self.target/length)+1] = "|"
-        return f"E-car: {charge_bar} charge: {round(self.battery.charge*100)}% > target: {round(self.target*100)}%"
+        return f"E-car [{self.state}]: {charge_bar} charge: {round(self.battery.charge_state * 100)}% > target: {round(self.target * 100)}%"
 
 
 
 if __name__ == "__main__":
     car1 = Ecar(1)
     for h in range(12):
-        car1.apply_charge()
+        car1.update()
         print(car1)
