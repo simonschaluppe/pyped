@@ -56,5 +56,5 @@ if __name__ == "__main__":
     # meta_cls = Meta(meta)
     # meta["meta_building_floor_area"]["value"]
 
-    meta_cls2 = Meta.from_xlsx("data/META.xlsx")
+    meta_cls2 = Meta.from_xlsx("../data/META.xlsx")
     # pdb.set_trace()
