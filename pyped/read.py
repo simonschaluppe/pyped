@@ -55,7 +55,7 @@ class Meta:
                         "value": name.refers_to_range.value}
             if real_name in meta.keys():
                 meta[real_name].__dict__.update(data)
-            else:
+            elif data:
                 meta[real_name] = Property(data)
 
         return cls(meta)
