@@ -30,9 +30,9 @@ We have 2 areas of improvement here
 
 **Reduce File Size to improve Handling**
 To reduce file size it is first neccessary to identify their main causes:
-* Pictures, especially uncompressed
-* widespread formatting over entire columns and rows
-* 
+* Pictures, especially uncompressed: This is a tradeoff between the documentation and visualization pictures typcally provide. If compressed and used sparinggly, this shouldnt be an issue. 
+* widespread formatting over entire columns and rows: Storing formatting requires much more space than just the formulas and values. use formatting primaarily to distinguish between different cell types: Different sorts of User Input, Calculations and Logic, Links, Default Values, etc. Some formatting information such as colors can be used to find cells of certain type for targetted testing, saving and loading. In any way, make sure to restrict formatting to used cells only. 
+* long chains of formula logic: For Excel to carry out all calculations in a workbook it first needs to resolve all internal (and external) references between cells. To this end Excel creates a so called "calculation chain". This is basically a directed graph whose nodes are batches of independent thus parallel calculations connected by arrows of dependency. For large sets of calculations, this dependency chain can become so long that it amounts for a significant part of the file size: In the case of the PE-Excel the calculation chain initially amounted to upwards of 50% of space. Unfortunately this can only be addressed indirectly: Reduce lookups and references in general, most importantly between worksheets.   
 
 # pyped  
 ## Concept for transitioning from Excel to Python
