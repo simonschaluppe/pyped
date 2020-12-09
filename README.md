@@ -23,6 +23,16 @@ So the main pain points here are:
 2. No flexible way to change calculation / simulation / algorithm
 3. No easy way to calculate and store variations
 
+ ### Solve Unwieldy filesize, crashes.
+We have 2 areas of improvement here
+1. Reduce File Size to improve Handling
+2. Reduce Calculation and Update Time
+
+**Reduce File Size to improve Handling**
+To reduce file size it is first neccessary to identify their main causes:
+* Pictures, especially uncompressed
+* widespread formatting over entire columns and rows
+* 
 
 # pyped  
 ## Concept for transitioning from Excel to Python
