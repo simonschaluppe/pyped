@@ -7,7 +7,6 @@ The PE-Excel has been developed by the research group [sustainable buildings and
 * LCA results in up to 5 Variants (manually imported from eco2soft LCA calculator)  
 * Hourly energy balance including determined DSM strategies for onsite PV excess and offsite Wind Peak Shaving used in TABS, DHW, Batteries and Ecars
 
-
 Starting from this infamous "Plusenergieexcel". It has some great merits alongside some very painful flaws:
 **The Good:**
 * Dynamic: It had hourly resolution: Energy balance, load profiles, PV generation, everything was known for each 8760 h of the year and could be used with a sensible algorithm trying to optimize for own consumption, CO2 emission, etc
