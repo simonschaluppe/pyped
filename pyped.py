@@ -26,19 +26,33 @@ cI = 200        # Wh/m²K
 QT = np.zeros((8760,1))
 
 TI = np.zeros(8760)
-TI[0] = 15.
+TI[0] = 22.
+
+TI_min = 22.
+TI_max = 25.
+
+Qh = np.zeros((8760,1))
+Qc = np.zeros((8760,1))
 
 for t in range(1, 8760):
     dT =  TA[t-1] - TI[t-1]
     QV[t] = QV_dT * dT # W/m²
     QT[t] = QT_dT * dT # W/m²
     Q_sum = (QT[t] + QV[t]) + QS[t] + QI[t]
-    TI[t] = TI[t-1] + Q_sum/cI
+    TI[t] = TI[t-1] + Q_sum / cI
+    if TI[t] < TI_min:
+        Qh[t] = (TI_min - TI[t]) * cI
+        TI[t] = TI[t] + Qh[t] / cI
+
+    if TI[t] > TI_max:
+        Qc[t] = (TI_max - TI[t]) * cI
+        TI[t] = TI[t] + Qc[t] / cI
+
+
     print(t, TA[t], QS[t], TA[t]+QS[t])
 
 
 # plt.plot(TA)
-plt.clf()
 plt.plot(TI)
 plt.plot(TA)
 plt.legend(["TI","TA"])
@@ -48,4 +62,7 @@ plt.plot(QT)
 plt.plot(QV)
 plt.plot(QS)
 plt.plot(QI)
+plt.plot(Qh)
+plt.plot(Qc)
+plt.legend(["QT","QV","QS","QI", "Qh","Qc"])
 plt.show()
