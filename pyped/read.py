@@ -57,7 +57,7 @@ class Meta:
                 meta[real_name].__dict__.update(data)
             elif data:
                 meta[real_name] = Property(data)
-
+        wb.close()
         return cls(meta)
 
 
@@ -95,4 +95,7 @@ if __name__ == "__main__":
     # meta_cls = Meta.from_xlsx("../data/META_name_value.xlsx")
 
     wind = Profile.read_wind()
-    wind.df.plot()
+    wind.plot_OALC()
+
+
+    test_meta = Meta.from_xlsx("../data/META_name_value.xlsx")
