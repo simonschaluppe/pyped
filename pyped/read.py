@@ -90,12 +90,26 @@ class Profile:
 
         return cls(profile, "MW")
 
+    @classmethod
+    def read_climate(cls, path="../data/profiles/climate.csv"):
+        df = pd.read_csv(path,
+                         delimiter=";",
+                         index_col="H")
+        # first profile:
+        profile = df[df.columns[0]]
+
+        return cls(profile, "°C")
+
 if __name__ == "__main__":
 
     # meta_cls = Meta.from_xlsx("../data/META_name_value.xlsx")
 
     wind = Profile.read_wind()
     wind.plot_OALC()
+    #
+    #
+    # test_meta = Meta.from_xlsx("../data/META_name_value.xlsx")
 
-
-    test_meta = Meta.from_xlsx("../data/META_name_value.xlsx")
+    TA = Profile.read_climate()
+    TA.df.plot()
+    plt.show()
