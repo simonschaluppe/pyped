@@ -49,9 +49,6 @@ for t in range(1, 8760):
         TI[t] = TI[t] + Qc[t] / cI
 
 
-    print(t, TA[t], QS[t], TA[t]+QS[t])
-
-
 # plt.plot(TA)
 plt.plot(TI)
 plt.plot(TA)
