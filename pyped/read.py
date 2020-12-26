@@ -102,7 +102,7 @@ class Profile:
 
 if __name__ == "__main__":
 
-    # meta_cls = Meta.from_xlsx("../data/META_name_value.xlsx")
+    meta_cls = Meta.from_xlsx("../data/META_name_value.xlsx")
 
     wind = Profile.read_wind()
     wind.plot_OALC()
