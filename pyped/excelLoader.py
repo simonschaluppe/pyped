@@ -3,20 +3,30 @@
 import xlwings as xw
 from collections import defaultdict
 
-# meta_cls = Meta.from_xlsx("../data/META_name_value.xlsx")
-# EXCEL_PATH = "../data/PlusenergieExcel_Performance.xlsb"
-# wb = xw.Book(EXCEL_PATH)
-# meta = {}
+class PEExcel_SimInput():
+    #net_room_height: float = 2.5
+
+    def __init__(self, path_to_PEExcel):
+        sim_inputs = defaultdict()
+
+        wb = xw.Book(path_to_PEExcel)
+
+        descriptions = wb.names["sim_input_names"].refers_to_range  # xW Range object
+        vals = wb.names["sim_input_vals"].refers_to_range  # xW Range object
+        pyvars = wb.names["sim_input_python_var_names"].refers_to_range  # xW Range object
+
+        for pyvar, val in zip(pyvars, vals):
+            self.__dict__[str(pyvar.value)] = val.value
 
 def load_inputs_from_PEExcel(path_to_PEExcel):
     sim_inputs = defaultdict()
 
     wb = xw.Book(path_to_PEExcel)
 
-    names = wb.names["sim_input_names"].refers_to_range     #xW Range object
-    vals  = wb.names["sim_input_direkt"].refers_to_range    #xW Range object
+    name = wb.names["sim_input_names"].refers_to_range     #xW Range object
+    vals  = wb.names["sim_input_vals"].refers_to_range    #xW Range object
 
-    for name, val in zip(names, vals):
+    for val, name in zip(vals, name):
         sim_inputs[name.value] = val.value
 
     return sim_inputs
@@ -24,6 +34,7 @@ def load_inputs_from_PEExcel(path_to_PEExcel):
 
 if __name__ == "__main__":
     default_path = "data/PlusenergieExcel_Performance.xlsb"
-
+    test_si = PEExcel_SimInput(default_path)
     test_inputs = load_inputs_from_PEExcel(default_path)
+
 

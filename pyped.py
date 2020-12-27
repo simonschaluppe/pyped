@@ -8,7 +8,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from pyped.excelLoader import load_inputs_from_PEExcel
+from pyped.excelLoader import PEExcel_SimInput, load_inputs_from_PEExcel
 
 #def simulate():
 TA  = np.genfromtxt("data/profiles/climate.csv",
@@ -22,21 +22,27 @@ QI = Usage["Qi Sommer W/m²"].to_numpy()
 
 # PEExcel "Sim"
 SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
+SI2 = PEExcel_SimInput("data/PlusenergieExcel_Performance.xlsb")
 
 #QV_dT = 0.5  #W/K/m2
-QV_dT = Usage["Luftwechsel_Anlage_1_h"] * 3 * 0.34 # luftwechsel [1/h] * raumhöhe [m] * cp_luft [Wh/m³K] > [W/m²K]
+# QV_dT [W/m²K] = luftwechsel [1/h] * raumhöhe [m] * cp_luft [Wh/m³K] > [W/m²K]
+QV_dT = Usage["Luftwechsel_Anlage_1_h"] * SI["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"] * SI["spez. Wärme kapazität Luft (Wh/m3K)"]
+
 QV = np.zeros(8760)
 
-QT_dT = 0.7   # W/K/m²
-cI = 200        # Wh/m²K
+QT_dT = SI2.QT_dT  # W/K/m²
+cI = SI2.sp_st_cap # Wh/m²K
+
+
 
 QT = np.zeros(8760)
 
-TI = np.zeros(8760)
-TI[0] = 22.
+TI_min = SI2.TI_h_min
+TI_max = SI2.TI_h_max
 
-TI_min = 22.
-TI_max = 25.
+TI = np.zeros(8760)
+TI[0] = TI_min
+
 
 Qh = np.zeros(8760)
 Qc = np.zeros(8760)
