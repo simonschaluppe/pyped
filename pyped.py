@@ -7,8 +7,10 @@
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from pyped.excelLoader import PEExcel_SimInput, load_inputs_from_PEExcel
+import pyped.datamodel, pyped.Plot, pyped.simulation
+from pyped.excelLoader import load_inputs_from_PEExcel
+
+
 
 #def simulate():
 TA  = np.genfromtxt("data/profiles/climate.csv",
@@ -18,27 +20,25 @@ QS = np.genfromtxt("data/profiles/QS_test.csv") # W/m²
 
 # PEExcel "Energiesumme"
 Usage = pd.read_csv("data/profiles/usage_profiles.csv", encoding="cp1252")
-QI = Usage["Qi Sommer W/m²"].to_numpy()
+QI = Usage["Qi Sommer W/m²"]
 
 # PEExcel "Sim"
 SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
-SI2 = PEExcel_SimInput("data/PlusenergieExcel_Performance.xlsb")
+M = pyped.datamodel.Model(SI)
 
-#QV_dT = 0.5  #W/K/m2
+
 # QV_dT [W/m²K] = luftwechsel [1/h] * raumhöhe [m] * cp_luft [Wh/m³K] > [W/m²K]
 QV_dT = Usage["Luftwechsel_Anlage_1_h"] * SI["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"] * SI["spez. Wärme kapazität Luft (Wh/m3K)"]
 
 QV = np.zeros(8760)
 
-QT_dT = SI2.QT_dT  # W/K/m²
-cI = SI2.sp_st_cap # Wh/m²K
-
-
+QT_dT = SI["Transmission gesamt (W/K/m²NGF)"] # W/K/m²
+cI = SI["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"] # Wh/m²K
 
 QT = np.zeros(8760)
 
-TI_min = SI2.TI_h_min
-TI_max = SI2.TI_h_max
+TI_min = SI["Heizung: Raumtemp.Minimum (°C)"]
+TI_max = SI["Kühlung Raumtemp.Minimum (°C)"]
 
 TI = np.zeros(8760)
 TI[0] = TI_min
@@ -63,25 +63,28 @@ for t in range(1, 8760):
 
 
 # plt.plot(TA)
-plt.plot(TI)
-plt.plot(TA)
-plt.legend(["TI","TA"])
-plt.show()
-
-plt.plot(QT)
-plt.plot(QV)
-plt.plot(QS)
-plt.plot(QI)
-plt.plot(Qh)
-plt.plot(Qc)
-plt.legend(["QT","QV","QS","QI", "Qh","Qc"])
-plt.show()
-
-plt.plot(QI[:72])
-plt.plot(QV_dT[:72])
-plt.legend(["QI","QV_dT"])
-plt.show()
 
 
-#if __name__ == "__main__":
-    #simulate()
+
+pyped.Plot.plot_Temp_Q(TI,TA,QT,QV,QS,QI,Qh,Qc,QV_dT)
+
+
+#DSM Sim
+for t in range(1, 8760):
+    pass
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
+    TSD = pyped.datamodel.TimeSeriesData()
+    sim = pyped.simulation.Simulation(TSD, SI)
+    sim.simulate()
+    pyped.Plot.plot_Temp_Q(sim.TSD.TI, sim.TA)
+
+
+
