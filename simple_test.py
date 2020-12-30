@@ -69,22 +69,5 @@ for t in range(1, 8760):
 pyped.Plot.plot_Temp_Q(TI,TA,QT,QV,QS,QI,Qh,Qc,QV_dT)
 
 
-#DSM Sim
-for t in range(1, 8760):
-    pass
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
-    TSD = pyped.datamodel.TimeSeriesData()
-    sim = pyped.simulation.Simulation(TSD, SI)
-    sim.simulate()
-    pyped.Plot.plot_Temp_Q(sim.TSD.TI, sim.TA)
-
 
 

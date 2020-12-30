@@ -78,7 +78,7 @@ def is_heating_season(M, TSD, t):
         return False
 
 def is_cooling_season(M, TSD, t):
-    if 4 <= TSD.months[t] <= 9:
+    if 5 <= TSD.months[t] <= 8:
         return True
     else:
         return False
@@ -118,15 +118,14 @@ def calc_QT(M, TSD, t):
     return
 
 
-
-
-
-if __name__ == "__main__":
+def test():
     simulate(M, TSD)
     pyped.Plot.plot_Temp_Q(TSD.TI, TSD.TA,
                            TSD.QT, TSD.QV, TSD.QS, TSD.QI, TSD.Qh_min, TSD.Qc_min, TSD.ACH_V)
 
 
+if __name__ == "__main__":
+    test()
 
 
 

@@ -25,6 +25,7 @@ def plot_Temp_Q(
     ax[1].plot(QI)
     ax[1].plot(Qh)
     ax[1].plot(Qc)
+    ax[1].set_ylim(-50,50)
     ax[1].legend(["QT" ,"QV" ,"QS" ,"QI", "Qh" ,"Qc"])
 
     ax[2].plot(QI[:72])
