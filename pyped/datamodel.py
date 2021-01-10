@@ -20,7 +20,7 @@ class TimeSeriesData():
         self.QI = np.zeros(timesteps)
         self.ACH_V = np.zeros(timesteps) #Ventilation
         self.ACH_I = np.zeros(timesteps) #Infiltration
-        self.Qdhw   = np.zeros(timesteps)
+        self.Qdhw  = np.zeros(timesteps)
 
 
         self.QV = np.zeros(timesteps)
@@ -115,7 +115,7 @@ class VentilationSystem(SimInput_Category):
     @property
     def share_cs(self):
         """Lüftungs- und Luftvolumen-Anteil ohne Wärmerückgewinnung"""
-        return self._SI["Lüftungsanteil ohne Wärmerückgewinnung"]
+        return self._SI["Anteil Lüftungsstrom wenn ohne Wärmerückgewinnung"]
 
     @property
     def hr_w(self):
@@ -182,3 +182,4 @@ class Model():
 if __name__ == "__main__":
     SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
     test_model = Model(SI)
+
