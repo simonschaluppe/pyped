@@ -29,10 +29,10 @@ TSD.QS = np.genfromtxt("data/profiles/QS_test.csv") # W/m²
 # Nutzungsprofile: PEExcel "Energiesumme"
 Usage = pd.read_csv("data/profiles/usage_profiles.csv", encoding="cp1252")
 # usage profiles
-TSD.QI = Usage["Qi Sommer W/m²"]
-TSD.ACH_V = Usage["Luftwechsel_Anlage_1_h"]
-TSD.ACH_I = Usage["Luftwechsel_Infiltration_1_h"]
-TSD.Qdhw = Usage["Warmwasserbedarf_W_m2"]
+TSD.QI = Usage["Qi Sommer W/m²"].to_numpy()
+TSD.ACH_V = Usage["Luftwechsel_Anlage_1_h"].to_numpy()
+TSD.ACH_I = Usage["Luftwechsel_Infiltration_1_h"].to_numpy()
+TSD.Qdhw = Usage["Warmwasserbedarf_W_m2"].to_numpy()
 
 
 ########### Simulate
