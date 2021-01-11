@@ -1,10 +1,8 @@
-
 import pyped.datamodel
 import numpy as np
 import pandas as pd
 
 from pyped.excelLoader import load_inputs_from_PEExcel
-
 
 
 class Simulation():
@@ -13,25 +11,25 @@ class Simulation():
     TimeSeriesData: Timeseries Data
     BuildingModel: building model (from PEEx
     """
+
     def __init__(self,
-                 TimeSeriesData:pyped.datamodel.TimeSeriesData,
-                 SimulationInput:dict,
+                 TimeSeriesData: pyped.datamodel.TimeSeriesData,
+                 SimulationInput: dict,
                  ):
-        self.TSD = TimeSeriesData # simulation result data
+        self.TSD = TimeSeriesData  # simulation result data
         self.SI = SimulationInput
 
         # Nutzungsprofile
         self.Usage = pd.read_csv("data/profiles/usage_profiles.csv", encoding="cp1252")
 
-        #climate data
+        # climate data
         self.TA = np.genfromtxt("data/profiles/climate.csv",
-                                delimiter=";")[1:,1]
+                                delimiter=";")[1:, 1]
         # solar gains
-        self.QS = np.genfromtxt("data/profiles/QS_test.csv") # W/m²
+        self.QS = np.genfromtxt("data/profiles/QS_test.csv")  # W/m²
         self.QI = self.Usage["Qi Sommer W/m²"]
 
     def simulate(self):
-
         TI_min = self.SI["Heizung: Raumtemp.Minimum (°C)"]
         TI_max = self.SI["Kühlung Raumtemp.Minimum (°C)"]
         cI = self.SI["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]  # Wh/m²K
@@ -41,13 +39,8 @@ class Simulation():
         for t in range(1, 8760):
             self.calc_thermal_losses(t)
 
-            # if self.TSD.TI[t] < TI_min:
-            #     Qh[t] = (TI_min - TI[t]) * cI
-            #     TI[t] = TI[t] + Qh[t] / cI
-            #
-            # if TI[t] > TI_max:
-            #     Qc[t] = (TI_max - TI[t]) * cI
-            #     TI[t] = TI[t] + Qc[t] / cI
+            self.calc_DHW(t)
+
 
     def calc_thermal_losses(self, t):
         dT = self.TA[t - 1] - self.TSD.TI[t - 1]
@@ -58,8 +51,8 @@ class Simulation():
 
         Q_sum = (self.TSD.QT[t] + self.TSD.QV[t]) + self.QS[t] + self.QI[t]
 
-        self.TSD.TI[t] = self.TSD.TI[t - 1] + Q_sum / self.SI["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]  # Wh/m²K
-
+        self.TSD.TI[t] = self.TSD.TI[t - 1] + Q_sum / self.SI[
+            "Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]  # Wh/m²K
 
     def calc_QT(self, dT):
         """Transmission heat losses [W/m²NGF]"""
@@ -73,6 +66,7 @@ class Simulation():
         QV = QV_dT * dT
         return QV
 
-
-
+    def calc_DHW(self, t):
+        """=WENN(Q56<$BL$6;($BL$6-Q56)*$DU$6*$BP$6/$G$6;0)"""
+        # if self.TSD.Tdhc < self.SI.
 

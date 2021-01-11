@@ -206,8 +206,42 @@ class VentilationSystem(SimInput_Category):
         else:
             return False
 
+@dataclass
+class DHW:
+    T_min: float = field(default=60., metadata={
+        "units": "°C"})
+    T_max: float = field(default=70., metadata={
+        "units": "°C"})
+    efficiency_distribution: float = field(default=0.75, metadata={
+        "units": "°C",
+        "description": "Wirkungsgrad (Verteilungsverluste)"})
 
-class Model():
+    storage_volume: float = field(default=10000., metadata={
+        "units": "l",
+        "description": "Wasserspeicher (l)"})
+
+    storage_heat_loss: float = field(default=10000., metadata={
+        "units": "W/K",
+        "description": ""})
+
+    heat_pump_power: float = field(default=7., metadata={
+        "units": "W/m²NGF",
+        "description": "Leistung Wärme pumpe (W/m²)"})
+
+    efficiency_startup: float = field(default=0.75, metadata={
+        "units": "°C",
+        "description": "Wirkungsgrad (Verteilungsverluste)"})
+
+    heat_pump_efficiency: float = field(default=3., metadata={
+        "units": "",
+        "description": "JAZ Wärme pumpe (W/m²)"})
+
+    heating_efficiency: float = field(default=0.8, metadata={
+        "units": "",
+        "description": "Wirkungsgrad Aufheizen"})
+
+
+class Model:
     """
     Model of the PEExcel Simulation Input
     """

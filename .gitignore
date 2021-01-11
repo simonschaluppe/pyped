@@ -1,4 +1,5 @@
 # Project exclude paths
+*
 /venv/
 /data/META.xlsx
 /data/META_name_value.xlsx
@@ -8,3 +9,4 @@
 /data/~$PlusenergieExcel_Pycharm.xlsx
 /docs/~$Zellennamen.xlsx
 /data/~$visual.xlsx
+
