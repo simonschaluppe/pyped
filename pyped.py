@@ -6,8 +6,10 @@
 
 import numpy as np
 import pandas as pd
-import pyped.datamodel, pyped.Plot, pyped.simulation, pyped.dasboard
+import pyped.datamodel, pyped.simulation, pyped.dasboard
+import pyped.Plot as ppp
 from pyped.excelLoader import load_inputs_from_PEExcel
+
 
 ########### generate model
 
@@ -131,4 +133,11 @@ if __name__ == "__main__":
     simulate(M, TSD)
     # pyped.Plot.plot_Temp_Q(TSD.TI, TSD.TA,
     #                        TSD.QT, TSD.QV, TSD.QS, TSD.QI, TSD.Qh_min, TSD.Qc_min, TSD.ACH_V)
-    d = pyped.dasboard.Dashboard(TSD, M)
+
+    fig = ppp.plot_Qx(*TSD.list_qx(),start=1,end=8760)
+    ppp.show_figure(fig)
+
+
+    if input("load dashboard?") =="y":
+        d = pyped.dasboard.Dashboard(TSD)
+

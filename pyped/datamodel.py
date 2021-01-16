@@ -72,36 +72,27 @@ class TimeSeriesData:
         df = pd.DataFrame(df_list)
         return df
 
+    def as_df(self):
+        array_dict = {k:array for k, array in self.__dict__.items() if type(array) == np.ndarray }
+        return pd.DataFrame(array_dict)
 
-class TimeSeriesDataOld():
-    """
-    puh eh
-    """
+    def to_csv(self, path):
+        self.as_df().to_csv(path)
 
-    def __init__(self, timesteps: int = 8760):
-        self.timesteps = timesteps
-        self.months = np.genfromtxt("data/profiles/months.csv")
-        # climate
-        self.TA = np.zeros(timesteps)
-        # solar gains
-        self.QS = np.zeros(timesteps)
-        # usage profiles
-        self.QI = np.zeros(timesteps)
-        self.ACH_V = np.zeros(timesteps)  # Ventilation
-        self.ACH_I = np.zeros(timesteps)  # Infiltration
-        self.Qdhw = np.zeros(timesteps)
+    def load_csv(self, path="data/test/TSD_test.csv"):
+        array = pd.read_csv(path, encoding="cp1252")
+        for col in array.keys():
+            if col in self.__dict__.keys():
+                self.__dict__[col] = array[[col]].to_numpy().flatten()
 
-        self.QV = np.zeros(timesteps)
-        self.QT = np.zeros(timesteps)
+    def to_excel(self, path):
+        self.as_df().to_excel(path, sheet_name="TSD")
 
-        self.Qh_min = np.zeros(timesteps)
-        self.Qc_min = np.zeros(timesteps)
-        # deckung abwärme?
-
-        self.TI = np.zeros(timesteps)
-        self.Tdhc = np.zeros(timesteps)
-        self.Ecars = np.zeros(timesteps)
-        self.Batteries = np.zeros(timesteps)
+    def load_excel(self, path):
+        excel_df = pd.read_excel(path, sheet_name="TSD")
+        for col in excel_df.columns:
+            if col in self.__dict__.keys():
+                self.__dict__[col] = excel_df[[col]].to_numpy().flatten()
 
 
 class Schedules():
@@ -291,7 +282,7 @@ class Model:
 
 
 if __name__ == "__main__":
-    SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
-    test_model = Model(SI)
-    test_tsd = TimeSeriesData()
-    tsd_old = TimeSeriesDataOld()
+    # SI = load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
+    # test_model = Model(SI)
+    test_tsd = TimeSeriesData(months= np.genfromtxt("../data/profiles/months.csv"))
+    test_tsd.load_csv("../data/test/TSD_test.csv")

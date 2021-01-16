@@ -20,20 +20,21 @@ def plot_df(df):
     return fig
 
 def plot_Qx(QT:np.ndarray    = np.zeros(8760),
-        QV:np.ndarray    = np.zeros(8760),
-        QS:np.ndarray    = np.zeros(8760),
-        QI:np.ndarray    = np.zeros(8760),
-        Qh:np.ndarray    = np.zeros(8760),
-        Qc:np.ndarray    = np.zeros(8760)):
+            QV:np.ndarray    = np.zeros(8760),
+            QS:np.ndarray    = np.zeros(8760),
+            QI:np.ndarray    = np.zeros(8760),
+            Qh:np.ndarray    = np.zeros(8760),
+            Qc:np.ndarray    = np.zeros(8760),
+            start=1, end=8760):
     fig = Figure()
-    # FigureCanvas(fig)  # not needed in mpl >= 3.1
+    # FigureCanvas(fig) # not needed in mpl >= 3.1
     ax = fig.add_subplot()
-    ax.plot(QT)
-    ax.plot(QV)
-    ax.plot(QS)
-    ax.plot(QI)
-    ax.plot(Qh)
-    ax.plot(Qc)
+    ax.plot(QT[start:end])
+    ax.plot(QV[start:end])
+    ax.plot(QS[start:end])
+    ax.plot(QI[start:end])
+    ax.plot(Qh[start:end])
+    ax.plot(Qc[start:end])
     ax.set_ylim(-50,50)
     ax.legend(["QT" ,"QV" ,"QS" ,"QI", "Qh" ,"Qc"])
     return fig
@@ -81,10 +82,17 @@ def plot_Temp_Q(
 
     fig.show()
 
-
+def show_figure(fig):
+    # create a dummy figure and use its
+    # manager to display "fig"
+    dummy = plt.figure()
+    new_manager = dummy.canvas.manager
+    new_manager.canvas.figure = fig
+    fig.set_canvas(new_manager.canvas)
 
 if __name__ == "__main__":
     print("nothing to do")
+
 
 
     #  interactive sankey code snippers
