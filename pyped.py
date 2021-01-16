@@ -6,7 +6,7 @@
 
 import numpy as np
 import pandas as pd
-import pyped.datamodel, pyped.Plot, pyped.simulation
+import pyped.datamodel, pyped.Plot, pyped.simulation, pyped.dasboard
 from pyped.excelLoader import load_inputs_from_PEExcel
 
 ########### generate model
@@ -16,7 +16,7 @@ SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
 M = pyped.datamodel.Model(SI)
 
 #### Timeseries Data
-TSD = pyped.datamodel.TimeSeriesData()
+TSD = pyped.datamodel.TimeSeriesData(months= np.genfromtxt("data/profiles/months.csv"))
 # climate data
 TSD.TA = np.genfromtxt("data/profiles/climate.csv",
                        delimiter=";")[1:, 1]
@@ -124,11 +124,11 @@ def calc_DHW(M, TSD, t):
     # if
     pass
 
-def test():
-    simulate(M, TSD)
-    pyped.Plot.plot_Temp_Q(TSD.TI, TSD.TA,
-                           TSD.QT, TSD.QV, TSD.QS, TSD.QI, TSD.Qh_min, TSD.Qc_min, TSD.ACH_V)
+
 
 
 if __name__ == "__main__":
-    test()
+    simulate(M, TSD)
+    # pyped.Plot.plot_Temp_Q(TSD.TI, TSD.TA,
+    #                        TSD.QT, TSD.QV, TSD.QS, TSD.QI, TSD.Qh_min, TSD.Qc_min, TSD.ACH_V)
+    d = pyped.dasboard.Dashboard(TSD, M)

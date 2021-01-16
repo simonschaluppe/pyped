@@ -6,8 +6,8 @@ from dataclasses import dataclass, field, fields
 
 @dataclass()
 class TimeSeriesData:
+    months: np.ndarray
     timesteps: int = 8760
-    months: np.ndarray = np.genfromtxt("data/profiles/months.csv")
     # climate
     TA: np.ndarray = field(default=np.zeros(timesteps), metadata={
         "units": "°C"})
@@ -51,6 +51,26 @@ class TimeSeriesData:
         "units": "%"})
     Batteries: np.ndarray = field(default=np.zeros(timesteps), metadata={
         "units": "%"})
+
+    # Qx: list = field(default_factory=["QT","QV","QS","QI","Qh","Qc"])
+    def list_qx(self) -> list:
+        Qx_list = [self.QT,
+                   self.QV,
+                   self.QS,
+                   self.QI,
+                   self.Qh_min,
+                   self.Qc_min]
+        return Qx_list
+
+    def qx_as_df(self):
+        df_list = {"QT":self.QT,
+                   "QV":self.QV,
+                   "QS":self.QS,
+                   "QI":self.QI,
+                   "Qh_min":self.Qh_min,
+                   "Qc_min":self.Qc_min}
+        df = pd.DataFrame(df_list)
+        return df
 
 
 class TimeSeriesDataOld():
