@@ -26,7 +26,7 @@ def plot_Qx(QT:np.ndarray    = np.zeros(8760),
             Qh:np.ndarray    = np.zeros(8760),
             Qc:np.ndarray    = np.zeros(8760),
             start=1, end=8760):
-    fig = Figure()
+    fig = Figure(figsize=(10,5), tight_layout=True)
     # FigureCanvas(fig) # not needed in mpl >= 3.1
     ax = fig.add_subplot()
     ax.plot(QT[start:end])
@@ -39,13 +39,15 @@ def plot_Qx(QT:np.ndarray    = np.zeros(8760),
     ax.legend(["QT" ,"QV" ,"QS" ,"QI", "Qh" ,"Qc"])
     return fig
 
-def plot_Temp(
-        TI:np.ndarray    = np.zeros(8760),
-        TA:np.ndarray    = np.zeros(8760),):
+def plot_Temp(TI:np.ndarray    = np.zeros(8760),
+              TA:np.ndarray    = np.zeros(8760),
+              start=1, end=8760):
 
-    fig, ax = plt.subplots()
-    ax.plot(TI)
-    ax.plot(TA)
+    fig = Figure(figsize=(10, 5), tight_layout=True)
+    # FigureCanvas(fig) # not needed in mpl >= 3.1
+    ax = fig.add_subplot()
+    ax.plot(TI[start:end])
+    ax.plot(TA[start:end])
     ax.legend(["TI", "TA"])
     return fig
 

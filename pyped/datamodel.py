@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from pyped.excelLoader import load_inputs_from_PEExcel
 from dataclasses import dataclass, field, fields
+import pyped.excelLoader
 
 
 @dataclass()
@@ -63,17 +63,17 @@ class TimeSeriesData:
         return Qx_list
 
     def qx_as_df(self):
-        df_list = {"QT":self.QT,
-                   "QV":self.QV,
-                   "QS":self.QS,
-                   "QI":self.QI,
-                   "Qh_min":self.Qh_min,
-                   "Qc_min":self.Qc_min}
+        df_list = {"QT": self.QT,
+                   "QV": self.QV,
+                   "QS": self.QS,
+                   "QI": self.QI,
+                   "Qh_min": self.Qh_min,
+                   "Qc_min": self.Qc_min}
         df = pd.DataFrame(df_list)
         return df
 
     def as_df(self):
-        array_dict = {k:array for k, array in self.__dict__.items() if type(array) == np.ndarray }
+        array_dict = {k: array for k, array in self.__dict__.items() if type(array) == np.ndarray}
         return pd.DataFrame(array_dict)
 
     def to_csv(self, path):
@@ -120,32 +120,6 @@ class Constants(SimInput_Category):
         return self._SI["spez. Wärme kapazität Luft (Wh/m3K)"]
 
 
-class Size(SimInput_Category):
-    """
-    [m²NGF]
-    Nettogeschoßflächen der Nutzungen
-
-    """
-
-    def __init__(self, SimInput):
-        self._SI = SimInput
-        self.residential = SimInput['Wohnbau NGF (m²)']
-        self.commercial = SimInput['Büro NGF (m²)']
-        self.school = SimInput['Schule NGF (m²)']
-        self.kiga = SimInput['Kiga NGF (m²)']
-        self.retail = SimInput['Handel NGF (m²)']
-        self.retail_pc_nonfood = SimInput['Anteil NonFood an Handel']
-        self.retail_food = self.retail * (1 - self.retail_pc_nonfood)
-        self.retail_nonfood = self.retail * self.retail_pc_nonfood
-
-        self.sum = SimInput['Summe NGF (m²)']
-
-    @property
-    def rh(self):
-        "Durchschn. Raumhöhe für die Berechnung des Lüfungsvolumen (m)"
-        return self._SI["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"]
-
-
 class ThermalHull(SimInput_Category):
     @property
     def QT_dT(self):
@@ -181,6 +155,7 @@ class CoolingSystem(SimInput_Category):
 
 
 class VentilationSystem(SimInput_Category):
+
     @property
     def share_cs(self):
         """Lüftungs- und Luftvolumen-Anteil ohne Wärmerückgewinnung"""
@@ -189,13 +164,13 @@ class VentilationSystem(SimInput_Category):
     @property
     def hr_w(self):
         """Wirkungsgrad Wärmerückgewinnung (Winter)"""
-        return self._SI["Wirkungsgrad Wärmerückgewinnung"] \
- \
+        return self._SI["Wirkungsgrad Wärmerückgewinnung"]
+
     @property
     def cr_s(self):
         """Wirkungsgrad Wärmerückgewinnung (Winter)"""
-        return self._SI["Wirkungsgrad Kälterückgewinnung"] \
- \
+        return self._SI["Wirkungsgrad Kälterückgewinnung"]
+
     @property
     def hr_t(self):
         """Wirkungsgrad Wärmerückgewinnung (Winter)"""
@@ -216,6 +191,7 @@ class VentilationSystem(SimInput_Category):
             return True
         else:
             return False
+
 
 @dataclass
 class DHW:
@@ -252,37 +228,84 @@ class DHW:
         "description": "Wirkungsgrad Aufheizen"})
 
 
-class Model:
+@dataclass()
+class Plot:
     """
-    Model of the PEExcel Simulation Input
+    Plot
     """
+    residential:        float = field(default=0)
+    commercial:         float = field(default=0)
+    school:             float = field(default=0)
+    kiga:               float = field(default=0)
+    retail:             float = field(default=0)
+    retail_food:        float = field(default=0)
+    retail_nonfood:     float = field(default=0)
 
-    def __init__(self, SimInput):
-        self._SI = SimInput
+    net_floor_area:     float = field(default=0)
 
-        self.size = Size(SimInput)
+    net_storey_height: float = field(default=0, metadata={
+        "units": "m",
+        "description": "Durchschn. Raumhöhe für die Berechnung des Lüfungsvolumen (m)"})
 
-        self.const = Constants(SimInput)
+    size: float = field(default=0, metadata={
+        "units": "m²",
+        "description": "Grundstücksfläche"})
 
-        self.hull = ThermalHull(SimInput)
+    density: float = field(default=0.4, metadata={
+        "units": "",
+        "description": "GRZ"})
 
-        self.heat = HeatingSystem(SimInput)
+    fsi: float = field(default=0.4, metadata={
+        "units": "",
+        "description": "GFZ"})
 
-        self.cool = CoolingSystem(SimInput)
 
-        self.vent = VentilationSystem(SimInput)
 
-    def __repr__(self):
-        return "Model of the PEExcel Simulation Input"
-        """Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"""
 
-    @property
-    def cI(self):
-        return self._SI["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]
+@dataclass()
+class PED:
+    """
+    Model of the PED
+    """
+    Plot: Plot
+    Constants: Constants
+    ThermalHull: ThermalHull
+    HeatingSystem: HeatingSystem
+    CoolingSystem: CoolingSystem
+    VentilationSystem: VentilationSystem
+
+    PEE_inputs: dict = field(default_factory=dict)
+    cI: float = 0
+
+    @classmethod
+    def from_PEExcel(cls, path="../data/PlusenergieExcel_Performance.xlsb"):
+        PEE_inputs = pyped.excelLoader.load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
+
+        # cI = self._SI["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]
+        return cls(Plot=Plot(
+                            residential=PEE_inputs['Wohnbau NGF (m²)'],
+                            commercial=PEE_inputs['Büro NGF (m²)'],
+                            school=PEE_inputs['Schule NGF (m²)'],
+                            kiga=PEE_inputs['Kiga NGF (m²)'],
+                            retail=PEE_inputs['Handel NGF (m²)'],
+                            retail_nonfood=PEE_inputs['Handel NGF (m²)'] * PEE_inputs['Anteil NonFood an Handel'],
+                            retail_food= PEE_inputs['Handel NGF (m²)'] * (1 - PEE_inputs['Anteil NonFood an Handel']),
+                            net_floor_area=PEE_inputs['Summe NGF (m²)'],
+                            net_storey_height=PEE_inputs["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"]),
+                    Constants=Constants(PEE_inputs),
+                    ThermalHull=ThermalHull(PEE_inputs),
+                    HeatingSystem=HeatingSystem(PEE_inputs),
+                    CoolingSystem=CoolingSystem(PEE_inputs),
+                    VentilationSystem=VentilationSystem(PEE_inputs),
+                    PEE_inputs=PEE_inputs,
+                    cI=PEE_inputs["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"],
+                   )
 
 
 if __name__ == "__main__":
-    # SI = load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
-    # test_model = Model(SI)
-    test_tsd = TimeSeriesData(months= np.genfromtxt("../data/profiles/months.csv"))
+    from pyped.excelLoader import load_inputs_from_PEExcel
+
+    test_model = PED.from_PEExcel(path="../data/PlusenergieExcel_Performance.xlsb")
+
+    test_tsd = TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
     test_tsd.load_csv("../data/test/TSD_test.csv")

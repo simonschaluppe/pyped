@@ -24,7 +24,7 @@ QI = Usage["Qi Sommer W/m²"]
 
 # PEExcel "Sim"
 SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
-M = pyped.datamodel.Model(SI)
+M = pyped.datamodel.PED(SI)
 
 
 # QV_dT [W/m²K] = luftwechsel [1/h] * raumhöhe [m] * cp_luft [Wh/m³K] > [W/m²K]
