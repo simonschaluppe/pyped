@@ -132,7 +132,7 @@ class Dashboard(param.Parameterized):
         self.col2 = pn.Column(self.PEE_card,self.Plot_card)
 
     #col3
-        self.col3 = pn.Column(self.dataframe)
+        self.col3 = pn.Column(self.dataframe.round())
 
         self.dash = pn.Row(self.col1, self.col2, self.col3).show(threaded=True)
 
