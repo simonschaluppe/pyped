@@ -47,7 +47,6 @@ class PEExcel:
 
 def load_inputs_from_PEExcel(path_to_PEExcel):
     """
-
     :param path_to_PEExcel:
     :return: sim_inputs: dict[PEExcel Name] = PEExcel Value
     """
@@ -63,11 +62,19 @@ def load_inputs_from_PEExcel(path_to_PEExcel):
 
     return sim_inputs
 
+def asdict(path_to_excel):
+    """
+    :param path_to_excel
+    :return: dict of all named ranges name:value
+    """
+    wb = xw.Book(path_to_excel)
+    return {nr.name: nr.refers_to_range.value for nr in wb.names if "_in" in nr.name}
+
 
 if __name__ == "__main__":
-    default_path = "data/PlusenergieExcel_Performance.xlsb"
-    tPEE = PEExcel(default_path)
-    tinputs = load_inputs_from_PEExcel(default_path)
-
+    # default_path = "data/PlusenergieExcel_Performance.xlsb"
+    # tPEE = PEExcel(default_path)
+    # tinputs = load_inputs_from_PEExcel(default_path)
+    pass
 
 
