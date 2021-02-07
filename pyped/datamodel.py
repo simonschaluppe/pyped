@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field, fields, asdict
 import pyped.excelLoader
 
 
@@ -101,23 +101,54 @@ class Schedules():
     """
 
 
-class SimInput_Category():
+
+@dataclass(order=True, unsafe_hash=True)
+class Property(float):
+    """PED property inluces a
+    name: str
+    value: float
+    units: str = ""
+    description: str = ""
+    peexcel_id: str = ""
+    zq_synergy_id: str = ""
+    """
+    name: str
+    value: float
+    units: str = ""
+    description: str = ""
+    peexcel_id: str = ""
+    zq_synergy_id: str = ""
+
+    def __new__(self, value, **kwargs):
+        return float.__new__(self, value)
+
+    def __repr__(self):
+        return f"{self.value} [{self.units}]"
+
+@dataclass
+class SimInput_Category:
     def __init__(self, SimInput):
         self._SI = SimInput
 
+class Category:
+    def __len__(self):
+        return len(self.__dict__)
 
-class Constants(SimInput_Category):
+    def __iter__(self):
+        return self.__dict__.values().__iter__()
+
+@dataclass
+class Constants(Category):
     """
     Physik, etc.
     """
-
-    @property
-    def cp_air(self):
-        """
-        spez. Wärmekapazität Luft (Wh/m3K)
-        :return: (Wh/m3K)
-        """
-        return self._SI["spez. Wärme kapazität Luft (Wh/m3K)"]
+    cp_air: Property = field(default=Property(
+        name="cp_air",
+        value=0.34,
+        units="Wh/m3K",
+        description="Spez. Wärmekapazität Luft",
+        peexcel_id="spez. Wärme kapazität Luft (Wh/m3K)"
+        ))
 
 
 class ThermalHull(SimInput_Category):
@@ -228,7 +259,7 @@ class DHW:
         "description": "Wirkungsgrad Aufheizen"})
 
 
-@dataclass()
+@dataclass
 class Plot:
     """
     Plot
@@ -260,21 +291,20 @@ class Plot:
         "description": "GFZ"})
 
 
-
-
 @dataclass()
 class PED:
     """
     Model of the PED
     """
-    Plot: Plot
-    Constants: Constants
-    ThermalHull: ThermalHull
-    HeatingSystem: HeatingSystem
-    CoolingSystem: CoolingSystem
-    VentilationSystem: VentilationSystem
-
     PEE_inputs: dict = field(default_factory=dict)
+
+    Plot: Plot = field(default=Plot())
+    Constants: Constants = field(default=Constants())
+    ThermalHull: ThermalHull = field(default=ThermalHull(PEE_inputs))
+    HeatingSystem: HeatingSystem = field(default=HeatingSystem(PEE_inputs))
+    CoolingSystem: CoolingSystem = field(default=CoolingSystem(PEE_inputs))
+    VentilationSystem: VentilationSystem = field(default=VentilationSystem(PEE_inputs))
+
     cI: float = 0
 
     @classmethod
@@ -282,23 +312,24 @@ class PED:
         PEE_inputs = pyped.excelLoader.load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
 
         # cI = self._SI["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]
-        return cls(Plot=Plot(
-                            residential=PEE_inputs['Wohnbau NGF (m²)'],
-                            commercial=PEE_inputs['Büro NGF (m²)'],
-                            school=PEE_inputs['Schule NGF (m²)'],
-                            kiga=PEE_inputs['Kiga NGF (m²)'],
-                            retail=PEE_inputs['Handel NGF (m²)'],
-                            retail_nonfood=PEE_inputs['Handel NGF (m²)'] * PEE_inputs['Anteil NonFood an Handel'],
-                            retail_food= PEE_inputs['Handel NGF (m²)'] * (1 - PEE_inputs['Anteil NonFood an Handel']),
-                            net_floor_area=PEE_inputs['Summe NGF (m²)'],
-                            net_storey_height=PEE_inputs["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"]),
-                    Constants=Constants(PEE_inputs),
-                    ThermalHull=ThermalHull(PEE_inputs),
-                    HeatingSystem=HeatingSystem(PEE_inputs),
-                    CoolingSystem=CoolingSystem(PEE_inputs),
-                    VentilationSystem=VentilationSystem(PEE_inputs),
-                    PEE_inputs=PEE_inputs,
-                    cI=PEE_inputs["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"],
+        return cls(
+            PEE_inputs=PEE_inputs,
+            Plot=Plot(
+                    residential=PEE_inputs['Wohnbau NGF (m²)'],
+                    commercial=PEE_inputs['Büro NGF (m²)'],
+                    school=PEE_inputs['Schule NGF (m²)'],
+                    kiga=PEE_inputs['Kiga NGF (m²)'],
+                    retail=PEE_inputs['Handel NGF (m²)'],
+                    retail_nonfood=PEE_inputs['Handel NGF (m²)'] * PEE_inputs['Anteil NonFood an Handel'],
+                    retail_food= PEE_inputs['Handel NGF (m²)'] * (1 - PEE_inputs['Anteil NonFood an Handel']),
+                    net_floor_area=PEE_inputs['Summe NGF (m²)'],
+                    net_storey_height=PEE_inputs["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"]),
+            # Constants=Constants(),
+            # ThermalHull=ThermalHull(PEE_inputs),
+            # HeatingSystem=HeatingSystem(PEE_inputs),
+            # CoolingSystem=CoolingSystem(PEE_inputs),
+            # VentilationSystem=VentilationSystem(PEE_inputs),
+            cI=PEE_inputs["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"],
                    )
 
 
@@ -307,5 +338,7 @@ if __name__ == "__main__":
 
     test_model = PED.from_PEExcel(path="../data/PlusenergieExcel_Performance.xlsb")
 
-    test_tsd = TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
-    test_tsd.load_csv("../data/test/TSD_test.csv")
+    # test_tsd = TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
+    # test_tsd.load_csv("../data/test/TSD_test.csv")
+    a = test_model.Constants
+

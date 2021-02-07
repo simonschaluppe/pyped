@@ -39,7 +39,6 @@ class Meta:
         :param path:
         :return: dict {name: {excel_name, header_range, value_range, value}}:
         """
-
         wb = xw.Book(path)
         meta = {}
 
