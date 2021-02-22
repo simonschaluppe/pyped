@@ -3,6 +3,13 @@ import pandas as pd
 from dataclasses import dataclass, field, fields, asdict
 import pyped.excelLoader
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO
+)
+
+logger = logging.getLogger(__name__)
 
 @dataclass()
 class TimeSeriesData:
@@ -113,22 +120,14 @@ class Property(float):
     zq_synergy_id: str = ""
     """
     name: str
-    value: float
+    value: float = 0.
     units: str = ""
     description: str = ""
     peexcel_id: str = ""
     zq_synergy_id: str = ""
 
-    def __new__(self, value, **kwargs):
-        return float.__new__(self, value)
-
     def __repr__(self):
-        return f"{self.value} [{self.units}]"
-
-@dataclass
-class SimInput_Category:
-    def __init__(self, SimInput):
-        self._SI = SimInput
+        return f"{self.name}={self.value} [{self.units}]"
 
 class Category:
     def __len__(self):
@@ -136,6 +135,14 @@ class Category:
 
     def __iter__(self):
         return self.__dict__.values().__iter__()
+
+    def getlist(self, attribute):
+        return [prop for prop in self if hasattr(prop, attribute)]
+
+
+class SimInput_Category(Category):
+    def __init__(self, SimInput):
+        self._SI = SimInput
 
 @dataclass
 class Constants(Category):
@@ -145,17 +152,23 @@ class Constants(Category):
     cp_air: Property = field(default=Property(
         name="cp_air",
         value=0.34,
-        units="Wh/m3K",
+        units="Wh/m³/K",
         description="Spez. Wärmekapazität Luft",
         peexcel_id="spez. Wärme kapazität Luft (Wh/m3K)"
         ))
 
+@dataclass
+class ThermalHull(Category):
+    """Thermal Hull properties"""
 
-class ThermalHull(SimInput_Category):
-    @property
-    def QT_dT(self):
-        """Transmission gesamt (W/K/m²NGF)"""
-        return self._SI["Transmission gesamt (W/K/m²NGF)"]
+    QT_dT: Property = field(default=Property(
+        name="QT_dt",
+        value=0.,
+        units="W/K/m²NGF",
+        description="Transmissionswärmeverluste (W/K/m²NGF)",
+        peexcel_id="Transmission gesamt (W/K/m²NGF)",
+        ))
+
 
 
 class HeatingSystem(SimInput_Category):
@@ -225,7 +238,7 @@ class VentilationSystem(SimInput_Category):
 
 
 @dataclass
-class DHW:
+class DHW(Category):
     T_min: float = field(default=60., metadata={
         "units": "°C"})
     T_max: float = field(default=70., metadata={
@@ -260,7 +273,7 @@ class DHW:
 
 
 @dataclass
-class Plot:
+class Plot(Category):
     """
     Plot
     """
@@ -272,73 +285,111 @@ class Plot:
     retail_food:        float = field(default=0)
     retail_nonfood:     float = field(default=0)
 
+    gross_floor_area: Property = field(default=Property(
+        name="BGF",
+        value=0,
+        units="m²BGF",
+        description="Bruttogrundfläche",
+        zq_synergy_id="BGF_in"
+    ))
+
     net_floor_area:     float = field(default=0)
 
     net_storey_height: float = field(default=0, metadata={
         "units": "m",
         "description": "Durchschn. Raumhöhe für die Berechnung des Lüfungsvolumen (m)"})
 
-    size: float = field(default=0, metadata={
-        "units": "m²",
-        "description": "Grundstücksfläche"})
+    area: Property = field(default=Property(
+        name="GF",
+        value=0,
+        units="m²",
+        description="Grundstücksfläche",
+        zq_synergy_id="plot_area_in"
+    ))
 
-    density: float = field(default=0.4, metadata={
-        "units": "",
-        "description": "GRZ"})
+    density: Property = field(default=Property(
+        name = "GRZ",
+        value= 0.,
+        units="-",
+        description="Grundfläche / bebaubare Fläche",
+        zq_synergy_id="plot_density_in"
+    ))
 
     fsi: float = field(default=0.4, metadata={
         "units": "",
         "description": "GFZ"})
 
 
-@dataclass()
-class PED:
+class PED(Category):
     """
     Model of the PED
     """
-    PEE_inputs: dict = field(default_factory=dict)
+    def __init__(self):
+        self._components = []
+        self.Plot = None
+        self.Constants = Constants()
+        self.ThermalHull = ThermalHull()
+        self.HeatingSystem = None
+        self.CoolingSystem = None
+        self.VentilationSystem = None
 
-    Plot: Plot = field(default=Plot())
-    Constants: Constants = field(default=Constants())
-    ThermalHull: ThermalHull = field(default=ThermalHull(PEE_inputs))
-    HeatingSystem: HeatingSystem = field(default=HeatingSystem(PEE_inputs))
-    CoolingSystem: CoolingSystem = field(default=CoolingSystem(PEE_inputs))
-    VentilationSystem: VentilationSystem = field(default=VentilationSystem(PEE_inputs))
+        self.cI: float = 0
 
-    cI: float = 0
+    def propdict(self, attribute):
+        """returns all properties of the model, that have a given attribute"""
+        return {i:i.__getattribute__(attribute) for cat in self if isinstance(cat, Category) for i in cat.getlist(attribute)}
+
+    def parse_excel(self, path="../data/PEQ_overview.xlsx", excel_type="zq_synergy_id"):
+        overview_dict = pyped.excelLoader.asdict(path)
+        logger.debug(overview_dict)
+        for prop, attr in self.propdict(excel_type).items():
+            logger.debug(f"{prop} has {excel_type}")
+            if attr in overview_dict.keys():
+                logger.info(f"updating {prop} with value {overview_dict[attr]}")
+                prop.value = overview_dict[attr]
+
+    @classmethod
+    def from_ZQ_Synergy(cls, path="../data/PEQ_overview.xlsx"):
+        model = cls()
+        model.parse_excel(path, excel_type="zq_synergy_id")
+        return model
+
 
     @classmethod
     def from_PEExcel(cls, path="../data/PlusenergieExcel_Performance.xlsb"):
         PEE_inputs = pyped.excelLoader.load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
 
+        model =  cls()
+
+        model.Plot = Plot(
+            residential=PEE_inputs['Wohnbau NGF (m²)'],
+            commercial=PEE_inputs['Büro NGF (m²)'],
+            school=PEE_inputs['Schule NGF (m²)'],
+            kiga=PEE_inputs['Kiga NGF (m²)'],
+            retail=PEE_inputs['Handel NGF (m²)'],
+            retail_nonfood=PEE_inputs['Handel NGF (m²)'] * PEE_inputs['Anteil NonFood an Handel'],
+            retail_food=PEE_inputs['Handel NGF (m²)'] * (1 - PEE_inputs['Anteil NonFood an Handel']),
+            net_floor_area=PEE_inputs['Summe NGF (m²)'],
+            net_storey_height=PEE_inputs["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"])
+
+        model.HeatingSystem=HeatingSystem(PEE_inputs)
+        model.CoolingSystem=CoolingSystem(PEE_inputs)
+        model.VentilationSystem=VentilationSystem(PEE_inputs)
         # cI = self._SI["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]
-        return cls(
-            PEE_inputs=PEE_inputs,
-            Plot=Plot(
-                    residential=PEE_inputs['Wohnbau NGF (m²)'],
-                    commercial=PEE_inputs['Büro NGF (m²)'],
-                    school=PEE_inputs['Schule NGF (m²)'],
-                    kiga=PEE_inputs['Kiga NGF (m²)'],
-                    retail=PEE_inputs['Handel NGF (m²)'],
-                    retail_nonfood=PEE_inputs['Handel NGF (m²)'] * PEE_inputs['Anteil NonFood an Handel'],
-                    retail_food= PEE_inputs['Handel NGF (m²)'] * (1 - PEE_inputs['Anteil NonFood an Handel']),
-                    net_floor_area=PEE_inputs['Summe NGF (m²)'],
-                    net_storey_height=PEE_inputs["Durchschn. Raumhöhe für die Berechnung des Lüfungs-volumen (m)"]),
-            # Constants=Constants(),
-            # ThermalHull=ThermalHull(PEE_inputs),
-            # HeatingSystem=HeatingSystem(PEE_inputs),
-            # CoolingSystem=CoolingSystem(PEE_inputs),
-            # VentilationSystem=VentilationSystem(PEE_inputs),
-            cI=PEE_inputs["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"],
-                   )
+        model.cI = PEE_inputs["Speicherkapazität spezifisch Wirksame Wärmekapazität (Wh/m²K)"]
+        model.ThermalHull.QT_dT.value = PEE_inputs["Transmission gesamt (W/K/m²NGF)"]
+
+        return model
+
 
 
 if __name__ == "__main__":
     from pyped.excelLoader import load_inputs_from_PEExcel
 
-    test_model = PED.from_PEExcel(path="../data/PlusenergieExcel_Performance.xlsb")
+    # test_model = PED.from_PEExcel(path="../data/PlusenergieExcel_Performance.xlsb")
 
     # test_tsd = TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
     # test_tsd.load_csv("../data/test/TSD_test.csv")
-    a = test_model.Constants
+    t = PED.from_ZQ_Synergy("../data/PEQ_overview.xlsx")
+    c = t.Constants
 
