@@ -309,7 +309,7 @@ class Plot(Category):
 
     density: Property = field(default=Property(
         name = "GRZ",
-        value= 0.,
+        value= 0.3,
         units="-",
         description="Grundfläche / bebaubare Fläche",
         zq_synergy_id="plot_density_in"
