@@ -339,22 +339,6 @@ class PED(Category):
         """returns all properties of the model, that have a given attribute"""
         return {i:i.__getattribute__(attribute) for cat in self if isinstance(cat, Category) for i in cat.getlist(attribute)}
 
-    def parse_excel(self, path="../data/PEQ_overview.xlsx", excel_type="zq_synergy_id"):
-        overview_dict = pyped.excel.asdict(path)
-        logger.debug(overview_dict)
-        for prop, attr in self.propdict(excel_type).items():
-            logger.debug(f"{prop} has {excel_type}")
-            if attr in overview_dict.keys():
-                logger.info(f"updating {prop} with value {overview_dict[attr]}")
-                prop.value = overview_dict[attr]
-
-    @classmethod
-    def from_ZQ_Synergy(cls, path="../data/PEQ_overview.xlsx"):
-        model = cls()
-        model.parse_excel(path, excel_type="zq_synergy_id")
-        return model
-
-
     @classmethod
     def from_PEExcel(cls, path="../data/PlusenergieExcel_Performance.xlsb"):
         PEE_inputs = pyped.excel.load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
@@ -390,6 +374,5 @@ if __name__ == "__main__":
 
     # test_tsd = TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
     # test_tsd.load_csv("../data/test/TSD_test.csv")
-    t = PED.from_ZQ_Synergy("../data/PEQ_overview.xlsx")
-    c = t.Constants
+
 
