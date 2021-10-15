@@ -8,7 +8,7 @@
 import numpy as np
 import pandas as pd
 import pyped.datamodel, pyped.Plot, pyped.simulation
-from pyped.excelLoader import load_inputs_from_PEExcel
+from pyped.excel import load_inputs_from_PEExcel
 
 
 
