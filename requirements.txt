@@ -45,7 +45,7 @@ panel==0.10.3
 param==1.10.1
 parso @ file:///tmp/build/80754af9/parso_1607623074025/work
 pickleshare @ file:///tmp/build/80754af9/pickleshare_1606932040724/work
-Pillow==8.1.0
+Pillow==8.3.2
 prometheus-client @ file:///tmp/build/80754af9/prometheus_client_1606344362066/work
 prompt-toolkit @ file:///tmp/build/80754af9/prompt-toolkit_1602688806899/work
 pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
