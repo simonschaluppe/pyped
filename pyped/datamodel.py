@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field, fields, asdict
-import pyped.excelLoader
+import pyped.excel
 
 import logging
 
@@ -340,7 +340,7 @@ class PED(Category):
         return {i:i.__getattribute__(attribute) for cat in self if isinstance(cat, Category) for i in cat.getlist(attribute)}
 
     def parse_excel(self, path="../data/PEQ_overview.xlsx", excel_type="zq_synergy_id"):
-        overview_dict = pyped.excelLoader.asdict(path)
+        overview_dict = pyped.excel.asdict(path)
         logger.debug(overview_dict)
         for prop, attr in self.propdict(excel_type).items():
             logger.debug(f"{prop} has {excel_type}")
@@ -357,7 +357,7 @@ class PED(Category):
 
     @classmethod
     def from_PEExcel(cls, path="../data/PlusenergieExcel_Performance.xlsb"):
-        PEE_inputs = pyped.excelLoader.load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
+        PEE_inputs = pyped.excel.load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
 
         model =  cls()
 
@@ -384,7 +384,7 @@ class PED(Category):
 
 
 if __name__ == "__main__":
-    from pyped.excelLoader import load_inputs_from_PEExcel
+    from pyped.excel import load_inputs_from_PEExcel
 
     # test_model = PED.from_PEExcel(path="../data/PlusenergieExcel_Performance.xlsb")
 

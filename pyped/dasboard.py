@@ -151,7 +151,7 @@ class Dashboard(param.Parameterized):
 
 
 if __name__ == "__main__":
-    from pyped.excelLoader import load_inputs_from_PEExcel
+    from pyped.excel import load_inputs_from_PEExcel
     from pyped.datamodel import PED
 
     test_model = PED.from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")

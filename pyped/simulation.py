@@ -122,7 +122,7 @@ if __name__ == "__main__":
 # generate model
 
 ## load PEExcel "SIM" Inputs
-    from pyped.excelLoader import load_inputs_from_PEExcel
+    from pyped.excel import load_inputs_from_PEExcel
     M = pyped.datamodel.PED.from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
 
 ## load Timeseries Data
