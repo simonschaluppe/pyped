@@ -7,13 +7,15 @@ import panel.widgets as pnw
 from matplotlib.figure import Figure
 # from matplotlib.backends.backend_agg import FigureCanvas
 
-import pyped.Plot as ppp
-import pyped.datamodel
+import Plot as ppp
+import datamodel
 import param
 import datetime as dt
 import bokeh.plotting as bpl
 from bokeh.models import ColumnDataSource, LabelSet
 
+from sys import path
+path.append("..//")
 
 class Dashboard(param.Parameterized):
 
@@ -151,7 +153,7 @@ class Dashboard(param.Parameterized):
 
 
 if __name__ == "__main__":
-    from pyped.excel import load_inputs_from_PEExcel
+    #from pyped.excel_utils import load_inputs_from_PEExcel
     from pyped.datamodel import PED
 
     test_model = PED.from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")

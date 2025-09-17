@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-import pyped.datamodel
+import datamodel
 
 
 class Simulation():
@@ -12,7 +12,7 @@ class Simulation():
     """
 
     def __init__(self,
-                 TimeSeriesData: pyped.datamodel.TimeSeriesData,
+                 TimeSeriesData: datamodel.TimeSeriesData,
                  SimulationInput: dict,
                  ):
         self.TSD = TimeSeriesData  # simulation result data
@@ -29,7 +29,7 @@ class Simulation():
         self.QI = self.Usage["Qi Sommer W/m²"]
 
 
-def simulate(M: pyped.datamodel.PED, TSD: pyped.datamodel.TimeSeriesData) -> pyped.datamodel.TimeSeriesData:
+def simulate(M: datamodel.PED, TSD: datamodel.TimeSeriesData) -> datamodel.TimeSeriesData:
     cI = M.cI  # speicherkapazität
     TI_min = M.HeatingSystem.minimum_room_temperature
     TI_max = M.CoolingSystem.minimum_room_temperature
@@ -122,11 +122,11 @@ if __name__ == "__main__":
 # generate model
 
 ## load PEExcel "SIM" Inputs
-    from pyped.excel import load_inputs_from_PEExcel
-    M = pyped.datamodel.PED.from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
+    #from pyped.excel_utils import load_inputs_from_PEExcel
+    M = datamodel.PED.from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
 
 ## load Timeseries Data
-    TSD = pyped.datamodel.TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
+    TSD = datamodel.TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
 ## load climate data
     TSD.TA = np.genfromtxt("../data/profiles/climate.csv",
                            delimiter=";")[1:, 1]
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     #                        TSD.QT, TSD.QV, TSD.QS, TSD.QI, TSD.Qh_min, TSD.Qc_min, TSD.ACH_V
 
     if input("plot results?") == "y":
-        import pyped.Plot as ppp
+        import Plot as ppp
 
         fig = ppp.plot_Qx(*TSD.list_qx(), start=1, end=8760)
         ppp.show_figure(fig)
@@ -164,6 +164,6 @@ if __name__ == "__main__":
 
 # Dashboard
     if input("load dashboard?") == "y":
-        import pyped.dasboard
+        import dasboard
 
-        d = pyped.dasboard.Dashboard(TSD, M)
+        d = dasboard.Dashboard(TSD, M)

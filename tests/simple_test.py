@@ -8,22 +8,22 @@
 import numpy as np
 import pandas as pd
 import pyped.datamodel, pyped.Plot, pyped.simulation
-from pyped.excel import load_inputs_from_PEExcel
+from pyped.excel_utils import load_inputs_from_PEExcel
 
 
 
 #def simulate():
-TA  = np.genfromtxt("data/profiles/climate.csv",
+TA  = np.genfromtxt("../data/profiles/climate.csv",
     delimiter=";")[1:,1]
 
-QS = np.genfromtxt("data/profiles/QS_test.csv") # W/m²
+QS = np.genfromtxt("../data/profiles/QS_test.csv") # W/m²
 
 # PEExcel "Energiesumme"
-Usage = pd.read_csv("data/profiles/usage_profiles.csv", encoding="cp1252")
+Usage = pd.read_csv("../data/profiles/usage_profiles.csv", encoding="cp1252")
 QI = Usage["Qi Sommer W/m²"]
 
 # PEExcel "Sim"
-SI = load_inputs_from_PEExcel("data/PlusenergieExcel_Performance.xlsb")
+SI = load_inputs_from_PEExcel("../data/PlusenergieExcel_Performance.xlsb")
 M = pyped.datamodel.PED(SI)
 
 

@@ -103,5 +103,5 @@ def _demo_PED2D():
 
 if __name__ == "__main__":
 
-    import pyped.excelAdapter.utils as pex
+    import pyped.excel_utils.utils as pex
     data = pex.read("../data/clean/Clean_testped2.xlsx")

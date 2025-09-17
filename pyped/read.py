@@ -35,7 +35,7 @@ class Meta:
     @classmethod
     def from_xlsx(cls ,path):
         """
-        reads excel from path and returns dict of named ranges
+        reads excel_utils from path and returns dict of named ranges
         :param path:
         :return: dict {name: {excel_name, header_range, value_range, value}}:
         """

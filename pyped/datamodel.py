@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field, fields, asdict
-import pyped.excel
+import excel
 
 import logging
 
@@ -126,8 +126,15 @@ class Property(float):
     peexcel_id: str = ""
     zq_synergy_id: str = ""
 
-    def __repr__(self):
-        return f"{self.name}={self.value} [{self.units}]"
+    def __call__(self, *args, **kwargs):
+        return self.value
+
+    def __str__(self):
+        return f"{self.name} = {self.value} [{self.units}]"
+
+    def __float__(self):
+        return self.value
+
 
 class Category:
     def __len__(self):
@@ -199,7 +206,6 @@ class CoolingSystem(SimInput_Category):
 
 
 class VentilationSystem(SimInput_Category):
-
     @property
     def share_cs(self):
         """Lüftungs- und Luftvolumen-Anteil ohne Wärmerückgewinnung"""
@@ -244,7 +250,7 @@ class DHW(Category):
     T_max: float = field(default=70., metadata={
         "units": "°C"})
     efficiency_distribution: float = field(default=0.75, metadata={
-        "units": "°C",
+        "units": "",
         "description": "Wirkungsgrad (Verteilungsverluste)"})
 
     storage_volume: float = field(default=10000., metadata={
@@ -265,7 +271,7 @@ class DHW(Category):
 
     heat_pump_efficiency: float = field(default=3., metadata={
         "units": "",
-        "description": "JAZ Wärme pumpe (W/m²)"})
+        "description": "JAZ Wärmepumpe (W/m²)"})
 
     heating_efficiency: float = field(default=0.8, metadata={
         "units": "",
@@ -368,8 +374,7 @@ class PED(Category):
 
 
 if __name__ == "__main__":
-    from pyped.excel import load_inputs_from_PEExcel
-
+    test = PED()
     # test_model = PED.from_PEExcel(path="../data/PlusenergieExcel_Performance.xlsb")
 
     # test_tsd = TimeSeriesData(months=np.genfromtxt("../data/profiles/months.csv"))
