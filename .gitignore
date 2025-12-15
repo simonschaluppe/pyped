@@ -10,3 +10,8 @@
 /docs/~$Zellennamen.xlsx
 /data/~$visual.xlsx
 /data/
+
+*.egg-info/
+build/
+dist/
+__pycache__/
